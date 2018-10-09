@@ -85,7 +85,7 @@ function parseTop25Data(fileData) {
 			tPrevRank = Number(tPrevRank.replace('PV Rank', ''));
 			// if applicable, create a rank change value
 			// value is positive for increase in rank, negative for decreased rank
-			var tRankChange = -1;
+			var tRankChange = 0;
 			if (isNaN(tPrevRank))
 				tPrevRank = -1;
 			else {
