@@ -39,12 +39,13 @@ function parseTop25Data(fileData) {
         // load the html into the cheerio doc
         var fullDoc = cheerio.load(fileData);
 		// find the elements of which week this is (pre-season, week 1, week 2, etc)
-        var blockTitleDoc = cheerio.load(fullDoc('.block-title').html()); 
+        var blockTitleDoc = cheerio.load(fullDoc('[class=page-header]').html()); 
 		var weekName = blockTitleDoc.text().trim()
+        weekName = weekName.replace('AP Top 25 Poll - ', '').trim();
 		// find the element containing the release date of the poll (Sep 7, Sep 14, etc)
-		var releasedDateDoc = cheerio.load(fullDoc('[id=poll-released]').html());
+		var releasedDateDoc = cheerio.load(fullDoc('[class=poll-released]').html());
 		var releasedDate = releasedDateDoc.text().trim();
-		releasedDate = releasedDate.replace('Poll released: ', '');
+		releasedDate = releasedDate.replace('Poll Released: ', '').trim();
 		// set the week and release date elements
 		allTop25Data.weekName = weekName;
 		allTop25Data.pollDate = releasedDate;
@@ -52,48 +53,47 @@ function parseTop25Data(fileData) {
         var openingThisWeekDoc = cheerio.load(fullDoc('table').html());        
         // iterate through each rank item, add each to return object	
         fullDoc('tr').each(function() {
-            var rankDoc = cheerio.load(fullDoc(this).html());
+            var rankDoc = cheerio.load(fullDoc(this).html(), {normalizeWhitespace: false, xmlMode: true });
 			var teamHTML = rankDoc.html();
-			// split out the poll rank number part
-			var rankStart = teamHTML.indexOf('<body>');
-			var rankEnd   = teamHTML.indexOf('<img');
-			var rank      = teamHTML.substring(rankStart + 6, rankEnd);
-            var tRank = Number(teamHTML.substring(rankStart + 6, rankEnd));		
+			// extract team rank
+            var tRank = Number(rankDoc('[class=trank]').text().trim());
 			// extract team name
-            var tName = rankDoc('.poll-team-name').text().trim();
-			// check if name contains a first place votes part
-			// if so extract it as a data point
-			var tFirstPlaceVotes = 0;
-			if (tName.endsWith(')')) {
-				var lastPar = tName.lastIndexOf('(');
-				var firstVotes = tName.substring(lastPar);
-				firstVotes = firstVotes.replace('(', '').replace(')', '').trim();
-				if (!isNaN(Number(firstVotes))) {
-					tName = tName.substring(0, lastPar - 1).trim();
-					tFirstPlaceVotes = Number(firstVotes);
-				}
-			}
-			// extract conference name
-            var tConference = rankDoc('.poll-conference').text().trim();
+            var tName = rankDoc('[class=tname]').text().trim();
+				// extract conference name
+            var tConference = rankDoc('[class=tconf]').text().trim();
 			// extract win-loss record, break into seperate values
-			var tRecord = rankDoc('.poll-record').text().trim();	
-			tRecord = tRecord.replace('Record: ', '');
+			var tRecord = rankDoc('[class=ovr-rec]').text().trim();	
 			var tRecordWins = Number(tRecord.split('-')[0]);
 			var tRecordLosses = Number(tRecord.split('-')[1]);
 			// check previous (last week) rank
-			var tPrevRank = rankDoc('.info-rank-wrap').text().trim();
-			tPrevRank = Number(tPrevRank.replace('PV Rank', ''));
-			// if applicable, create a rank change value
-			// value is positive for increase in rank, negative for decreased rank
-			var tRankChange = 0;
-			if (isNaN(tPrevRank))
-				tPrevRank = -1;
-			else {
-				tRankChange = tPrevRank - tRank;
-			}			
+            var tChangeLoc1 = teamHTML.indexOf('class="trend');
+            var tChangeLoc2 = teamHTML.indexOf('</td>', tChangeLoc1);
+            var tChangeArrow = teamHTML.substring(tChangeLoc1, tChangeLoc2);
+            var tChangeLoc3 = tChangeArrow.lastIndexOf('>');
+            var tChangeVal = tChangeArrow.substring(tChangeLoc3 + 1, tChangeLoc3 + 3).trim();
+            var tRankChange = 0;
+            if (!isNaN(Number(tChangeVal))) {
+                tRankChange = Number(tChangeVal);
+                if (tChangeArrow.includes('down'))
+                    tRankChange = tRankChange * -1;
+            }
+            var tPrevRank = tRank;
+            if (tRankChange != 0)
+                tPrevRank = tPrevRank + tRankChange;
 			// get the voting points value
-			var tVotes = rankDoc('.info-votes-wrap').text().trim();
-			tVotes = Number(tVotes.replace('Points', '').replace(',', ''));
+			var tVotes = rankDoc('[class=tpoints]').text().trim();
+            tVotes = tVotes.replace(',', '');
+            // check if votes contains first place votes
+			// if so extract it seperately
+            // otherwise just keep votes
+			var tFirstPlaceVotes = 0;
+			if (tVotes.endsWith(')')) {
+				var fullVotes = tVotes.replace('(', '-').replace(')', '').trim();
+                tVotes = Number(fullVotes.split('-')[0]);
+                tFirstPlaceVotes = Number(fullVotes.split('-')[1]);
+			}
+            else
+                tVotes = Number(tVotes);
 			// create a team data object for all values
             var teamObj = { 
                 team_name: tName, 
@@ -107,7 +107,8 @@ function parseTop25Data(fileData) {
 				votes_firstplace: tFirstPlaceVotes,
             };			
 			// add team object to data list
-			allTop25Data.ranks.push(teamObj);
+            if (tName != '')
+                allTop25Data.ranks.push(teamObj);
         });	
 	}
     // return error flag and the data  
@@ -141,5 +142,5 @@ function requestAPTop25HTML(callback) {
 exports.getAPTop25Data = function(callback) {
     requestAPTop25HTML(callback);
 }
-  
+ 
 //  --- the end ---
