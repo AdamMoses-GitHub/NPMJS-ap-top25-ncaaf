@@ -1,20 +1,43 @@
 {
-  "name": "ap-top25-ncaaf",
-  "version": "1.0.3",
-  "description": "This package will retrieve the most recent AP Top 25 Rankings for NCAA College Football.",
-  "main": "index.js",
+  "_from": "ap-top25-ncaaf",
+  "_id": "ap-top25-ncaaf@1.0.3",
+  "_inBundle": false,
+  "_integrity": "sha512-dNe+dA2inRv2u42uVVInVxaF/7AB8bn6Cyd9QyHTSWct9mMAwHm7G/tez0pwVyzCNKmEdNYrMC1/3sdDSjQA1A==",
+  "_location": "/ap-top25-ncaaf",
+  "_phantomChildren": {},
+  "_requested": {
+    "type": "tag",
+    "registry": true,
+    "raw": "ap-top25-ncaaf",
+    "name": "ap-top25-ncaaf",
+    "escapedName": "ap-top25-ncaaf",
+    "rawSpec": "",
+    "saveSpec": null,
+    "fetchSpec": "latest"
+  },
+  "_requiredBy": [
+    "#USER",
+    "/"
+  ],
+  "_resolved": "https://registry.npmjs.org/ap-top25-ncaaf/-/ap-top25-ncaaf-1.0.3.tgz",
+  "_shasum": "724bc7b1d79c71903e55573dad4ea06480e77558",
+  "_spec": "ap-top25-ncaaf",
+  "_where": "F:\\Dev\\t25-a",
+  "author": {
+    "name": "AdamMoses-GitHub"
+  },
+  "bugs": {
+    "url": "https://github.com/AdamMoses-GitHub/NPMJS-ap-top25-ncaaf/issues"
+  },
+  "bundleDependencies": false,
   "dependencies": {
     "cheerio": "^1.0.0-rc.2",
     "request": "^2.88.0"
   },
+  "deprecated": false,
+  "description": "This package will retrieve the most recent AP Top 25 Rankings for NCAA College Football.",
   "devDependencies": {},
-  "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
-  },
-  "repository": {
-    "type": "git",
-    "url": "git+https://github.com/AdamMoses-GitHub/NPMJS-ap-top25-ncaaf.git"
-  },
+  "homepage": "https://github.com/AdamMoses-GitHub/NPMJS-ap-top25-ncaaf#readme",
   "keywords": [
     "college",
     "football",
@@ -24,10 +47,15 @@
     "ap",
     "top25"
   ],
-  "author": "AdamMoses-GitHub",
   "license": "MIT",
-  "bugs": {
-    "url": "https://github.com/AdamMoses-GitHub/NPMJS-ap-top25-ncaaf/issues"
+  "main": "index.js",
+  "name": "ap-top25-ncaaf",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/AdamMoses-GitHub/NPMJS-ap-top25-ncaaf.git"
   },
-  "homepage": "https://github.com/AdamMoses-GitHub/NPMJS-ap-top25-ncaaf#readme"
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "version": "1.0.4"
 }
