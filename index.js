@@ -44,7 +44,7 @@ function parseTop25Data(fileData) {
 		weekName = weekName.substring(0, 1).toUpperCase() +
 					weekName.substring(1, weekName.length).toLowerCase();
 		// find the element containing the release date of the poll (Sep 7, Sep 14, etc)
-		var releasedDateDoc = cheerio.load(fullDoc('[class=c0143]').html());
+		var releasedDateDoc = cheerio.load(fullDoc('[class=c0144]').html());
 		var releasedDate = releasedDateDoc.text().trim();
 		releasedDate = releasedDate.replace('Released ', '').trim();
 		var rdMonth = releasedDate.split(' ')[0].substring(0, 3);
