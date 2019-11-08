@@ -1,8 +1,8 @@
 {
   "_from": "ap-top25-ncaaf",
-  "_id": "ap-top25-ncaaf@1.0.3",
+  "_id": "ap-top25-ncaaf@1.0.4",
   "_inBundle": false,
-  "_integrity": "sha512-dNe+dA2inRv2u42uVVInVxaF/7AB8bn6Cyd9QyHTSWct9mMAwHm7G/tez0pwVyzCNKmEdNYrMC1/3sdDSjQA1A==",
+  "_integrity": "sha512-NtbeuC2H24By1A6QPeuVM3TXPSIAoxS6R3PIPWmgOg/YPR/585N1lOKP9QafRdrwhY00rymURw7HjJTr3IXoOA==",
   "_location": "/ap-top25-ncaaf",
   "_phantomChildren": {},
   "_requested": {
@@ -19,10 +19,10 @@
     "#USER",
     "/"
   ],
-  "_resolved": "https://registry.npmjs.org/ap-top25-ncaaf/-/ap-top25-ncaaf-1.0.3.tgz",
-  "_shasum": "724bc7b1d79c71903e55573dad4ea06480e77558",
+  "_resolved": "https://registry.npmjs.org/ap-top25-ncaaf/-/ap-top25-ncaaf-1.0.4.tgz",
+  "_shasum": "716c2c38fd6b1cd1c867c659d2dbaaef617b9d79",
   "_spec": "ap-top25-ncaaf",
-  "_where": "F:\\Dev\\t25-a",
+  "_where": "F:\\Dev\\t25-b",
   "author": {
     "name": "AdamMoses-GitHub"
   },
@@ -57,5 +57,5 @@
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
   },
-  "version": "1.0.4"
+  "version": "1.0.5"
 }
