@@ -45,10 +45,7 @@ function parseTop25Data(fileData) {
 		var str = $('script')[0].children[0].data;
 		str = str.match(/titanium-state'] = (.*)/)[1];
 		str = JSON.parse(str);
-
-		console.log("week");
-		console.log(Object.keys(str));
-
+		
 		// find the elements of which week this is (pre-season, week 1, week 2, etc)
 		var weekNum = str.hub.data['/ap-top-25-college-football-poll'].cards[0].pollFilters.week;
 		var weekName = 'Week '+ weekNum;
@@ -69,7 +66,6 @@ function parseTop25Data(fileData) {
 		var teams = str.hub.data['/ap-top-25-college-football-poll'].cards[0].teams;
 		// iterate through each rank item, add each to return object
 		teams.forEach(function(team, num) {
-			console.log(num);
 			if (num < 25) {
 				var teamObj = {
 					team_name: team.name,
