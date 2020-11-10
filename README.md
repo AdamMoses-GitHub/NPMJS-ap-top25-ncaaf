@@ -7,6 +7,18 @@ This data is taken from the official AP Top 25 website, whose URL is **https://c
 The information returned includes rank, team name and conference, win/loss record, previous rank and rank change, and voting points and first place votes. Some of these values are applicable only in certain circumstances.
 
 ## Installation
+Pull request has been made with original owner, but in the meantime, you can use this repo to fix issues scraping AP's website. To install this repo over your existing installation of `ap-top25-ncaaf`, git clone it into your `<MagicMirror_Home_Directory>/node_modules`, then run the following commands from that same `node_modules` directory:
+```
+mv ap-top25-ncaaf ap-top25-ncaaf-backup
+mv NPMJS-ap-top25-ncaaf ap-top25-ncaaf
+
+# Change back to <MagicMirror_HomeDirectory> because npx command searches along path node_modules/<package-you-wish-to-patch>
+cd ..
+npx patch-package ap-top25-ncaaf
+```
+And that's it!
+
+NOTE: If you don't have an existing installation of `ap-top25-ncaaf`, run this:
 
 ```
 npm install ap-top25-ncaaf
