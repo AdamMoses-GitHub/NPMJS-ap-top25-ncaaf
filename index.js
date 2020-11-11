@@ -25,145 +25,95 @@ SOFTWARE.
 // parses the HTML body that the request operation received
 // uses the cheerio package to achieve this
 function parseTop25Data(fileData) {
-    var cheerio = require("cheerio");
-    // prep the return object
-    var allTop25Data = { 	weekName: '',
-							pollDate: '',
-							ranks: [ ]
-							};
-    var errorFlag = true;
-    // sanity check that this is the ap top 25 page
-    if (fileData.indexOf('AP Top 25 College Football Poll') != -1) {
-        // set error flag to false for passing sanity check
-        errorFlag = false;
-        // load the html into the cheerio doc
-        var fullDoc = cheerio.load(fileData);
+	var cheerio = require("cheerio");
+	// prep the return object
+	var allTop25Data = {
+		weekName: '',
+		pollDate: '',
+		ranks: [ ]
+	};
+	var errorFlag = true;
+	// sanity check that this is the ap top 25 page
+	if (fileData.indexOf('AP Top 25 College Football Poll') != -1) {
+	        // set error flag to false for passing sanity check
+	        errorFlag = false;
+        	// load the html into the cheerio doc
+	        var fullDoc, $ = cheerio.load(fileData);
 		// uncomment below line for HTML debug
 		//console.log(fullDoc.html());
+
+		var str = $('script')[0].children[0].data;
+		str = str.match(/titanium-state'] = (.*)/)[1];
+		str = JSON.parse(str);
+		
 		// find the elements of which week this is (pre-season, week 1, week 2, etc)
-        var blockTitleDoc = cheerio.load(fullDoc('[class=Component-pollWeek-0-2-63]').html()); 
-		var weekName = blockTitleDoc.text().trim();
+		var weekNum = str.hub.data['/ap-top-25-college-football-poll'].cards[0].pollFilters.week;
+		var weekName = 'Week '+ weekNum;
 		weekName = weekName.substring(0, 1).toUpperCase() +
-					weekName.substring(1, weekName.length).toLowerCase();
+				weekName.substring(1, weekName.length).toLowerCase();
+
 		// find the element containing the release date of the poll (Sep 7, Sep 14, etc)
-		var releasedDateDoc = cheerio.load(fullDoc('[class=Component-pollReleased-0-2-64]').html());
-		var releasedDate = releasedDateDoc.text().trim();
-		releasedDate = releasedDate.replace('Released ', '').trim();
-		var rdMonth = releasedDate.split(' ')[0].substring(0, 3);
-		var rdDay = releasedDate.split(' ')[1];
+		var releasedDate = str.hub.data['/ap-top-25-college-football-poll'].cards[0].pollUpdated;
+		releasedDate = new Date(releasedDate);
+		releasedDate = releasedDate.toString().split(' ');
+		var rdMonth = releasedDate[1];
+		var rdDay = releasedDate[2];
+
 		// set the week and release date elements
 		allTop25Data.weekName = weekName;
 		allTop25Data.pollDate = String(rdMonth + " " + rdDay);	
-        // find the stub for the poll rankings table
-        var openingThisWeekDoc = cheerio.load(fullDoc('table').html());   
-        // iterate through each rank item, add each to return object
-        fullDoc('tr').each(function() {
-            var rankDoc = cheerio.load(fullDoc(this).html(), {normalizeWhitespace: false, xmlMode: true });
-			var teamHTML = rankDoc.html();
-			var itemIndex = 0;
-			var tRank = 0;
-			var tFullTeam = String();
-			var tName = String();
-			var tPrevRank = -1;
-            var tRankChange = 0;			
-			var tConference = String();
-			var tVotesString = String();
-			var tVotes = 0;
-			var tFirstPlaceVotes = 0;
-			var tRecordWins = 0;
-			var tRecordLosses = 0;
-			rankDoc('td').each(function() {
-				var tdDoc = cheerio.load(rankDoc(this).html(), {normalizeWhitespace: false, xmlMode: true });
-				var tdHTML = tdDoc.html();
-				var tdTEXT = tdDoc.text().trim()
-				// extract team rank
-				if (itemIndex == 0) 
-					tRank = Number(tdTEXT);
-				// extract team name
-				if (itemIndex == 2) {					
-					tFullTeam = tdTEXT;
-					tName = tFullTeam.split('(')[0].trim();
-					// extract win-loss record, break into seperate values
-					var tRecords = tFullTeam.split('(')[1].trim();
-					tRecords = tRecords.replace(')', '');
-					tRecordWins = Number(tRecords.split('-')[0]);
-					tRecordLosses = Number(tRecords.split('-')[1]);					
-				}
-				// check previous (last week) rank
-				if (itemIndex == 3) {
-					tPrevRank = Number(tdTEXT);
-					//consol
-					if (isNaN(tPrevRank)) {
-						tPrevRank = -1;
-					}
-					else {
-						if (tPrevRank > 0) {
-							// check rank change
-							tRankChange = tPrevRank - tRank;
-						}
-						else
-							tPrevRank = -1;
-					}
-				}
-				// extract conference name				
-				if (itemIndex == 4)
-					tConference = tdTEXT;
-				// extract votes
-				if (itemIndex == 6) {
-					tVotesString = tdTEXT;
-					tVotesString = tVotesString.replace(',', '');
-					tVotes = Number(tVotesString);
-				}
-				// iterate index
-				itemIndex = itemIndex + 1;
-			});
-			// create a team data object for all values
-            var teamObj = { 
-                team_name: tName, 
-                team_conference: tConference,
-                rank_position: tRank, 				
-				rank_previous: tPrevRank,
-				rank_change: tRankChange,
-				record_wins: tRecordWins,
-				record_losses: tRecordLosses,
-				votes_points: tVotes,
-				votes_firstplace: tFirstPlaceVotes,
-            };			
-			// add team object to data list
-            if (tName != '')
-                allTop25Data.ranks.push(teamObj);
-        });	
+        	// find the stub for the poll rankings table
+		var teams = str.hub.data['/ap-top-25-college-football-poll'].cards[0].teams;
+		// iterate through each rank item, add each to return object
+		teams.forEach(function(team, num) {
+			if (num < 25) {
+				var teamObj = {
+					team_name: team.name,
+					team_conference: team.conferenceName,
+					rank_position: team.rank,
+					rank_previous: team.lastRank,
+					rank_change: team.lastRank - team.rank,
+					record_wins: team.overallRecord.wins,
+					record_losses: team.overallRecord.losses,
+					votes_points: team.pollPoints,
+					votes_firstplace: team.firstPlacePoints,
+				};
+
+				if (team.name != '')
+					allTop25Data.ranks.push(teamObj);
+			}
+		});
 	}
-    // return error flag and the data  
-    return {error: errorFlag, data: allTop25Data};	
+
+	// return error flag and the data
+	return {error: errorFlag, data: allTop25Data};
 }
 
 // makes a call to get the HTML from the AP Top 25 NCAAF Poll front page
 // uses the request package to achieve this
 function requestAPTop25HTML(callback) {
-    var request = require("request");
-    request({ uri: "https://collegefootball.ap.org/poll" }, 
-        function(error, response, body) {
-            if (!error) {
-                var parsedData = parseTop25Data(body);
-				// if no error return false error and the data
-                if (parsedData.error == false)
-                    callback(false, parsedData.data);
-				// otherwise return true error and null data
-                else
-                    callback(true, null);
-            }
-			// if error on request return true error and null data
-            else {
-                callback(true, null);
-            }
+	var request = require("request");
+	request({ uri: "https:\/\/collegefootball.ap.org/poll" }, function(error, response, body) {
+		if (!error) {
+			var parsedData = parseTop25Data(body);
+			// if no error return false error and the data
+			if (parsedData.error == false)
+				callback(false, parsedData.data);
+			// otherwise return true error and null data
+                	else
+				callback(true, null);
+		}
+		// if error on request return true error and null data
+		else {
+			callback(true, null);
+		}
         });
 }
 
 // the export function exposed via the package
 // uses a callback since the request call itself is asynchronous
 exports.getAPTop25NCAAFRankingsData = function(callback) {
-    requestAPTop25HTML(callback);
+	requestAPTop25HTML(callback);
 }
  
 //  --- the end ---
